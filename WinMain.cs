@@ -10,11 +10,16 @@ using System.Windows.Forms;
 
 namespace ImportPST
 {
-    public partial class Form1 : Form
+    public partial class WinMain : Form
     {
-        public Form1()
+        public WinMain()
         {
             InitializeComponent();
+        }
+
+        private void WinMain_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
