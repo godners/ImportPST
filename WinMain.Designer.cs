@@ -117,7 +117,7 @@
             this.ButtonCheck.Name = "ButtonCheck";
             this.ButtonCheck.Size = new System.Drawing.Size(49, 26);
             this.ButtonCheck.TabIndex = 6;
-            this.ButtonCheck.Text = "确认";
+            this.ButtonCheck.Text = "检查";
             this.ButtonCheck.UseVisualStyleBackColor = true;
             this.ButtonCheck.Click += new System.EventHandler(this.ButtonCheck_Click);
             // 
@@ -132,6 +132,7 @@
             this.ButtonStart.TabIndex = 7;
             this.ButtonStart.Text = "开始";
             this.ButtonStart.UseVisualStyleBackColor = true;
+            this.ButtonStart.Click += new System.EventHandler(this.ButtonStart_Click);
             // 
             // ButtonFile
             // 
@@ -156,13 +157,13 @@
             // LabelSchedule
             // 
             this.LabelSchedule.BackColor = System.Drawing.SystemColors.Control;
-            this.LabelSchedule.Location = new System.Drawing.Point(298, 112);
+            this.LabelSchedule.Location = new System.Drawing.Point(291, 112);
             this.LabelSchedule.Margin = new System.Windows.Forms.Padding(4);
             this.LabelSchedule.Name = "LabelSchedule";
             this.LabelSchedule.Padding = new System.Windows.Forms.Padding(4);
-            this.LabelSchedule.Size = new System.Drawing.Size(49, 24);
+            this.LabelSchedule.Size = new System.Drawing.Size(56, 24);
             this.LabelSchedule.TabIndex = 10;
-            this.LabelSchedule.Text = "0%";
+            this.LabelSchedule.Text = "22.0%";
             this.LabelSchedule.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // OpenFileDialogPST
