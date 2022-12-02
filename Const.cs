@@ -17,7 +17,6 @@ namespace ImportPST
         internal const String DomainName = "cicc.group";
         internal static String[] FolderNameInboxes = { "收件箱", "INBOX", "Inbox" };
         internal static String FolderInbox = "收件箱";
-        //internal static ImapFolderInfo FolderInbox = 
         internal static String[] FolderNameSents = { "已发送", "已发送邮件", "SENT", "Sent" };
         internal static String FolderSent = "已发送";
         internal static String[] FolderNameDeletes = { "已删除", "已删除邮件", "DELETED", "Deleted" };
