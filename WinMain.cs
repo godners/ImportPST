@@ -95,7 +95,7 @@ namespace ImportPST
             if (IMAPWorker.ConnectionState != ConnectionState.Open)
             {
                 MessageBox.Show($"{IMAPServer}\r\n连接失败。", "错误",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error); return;
+                        MessageBoxButtons.OK, MessageBoxIcon.Error); return;                
             }
             // ↓↓↓服务器完成验证
             TextBoxUsnm.Enabled = false;

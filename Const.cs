@@ -16,11 +16,14 @@ namespace ImportPST
     {
         internal const String DomainName = "cicc.group";
         internal static String[] FolderNameInboxes = { "收件箱", "INBOX", "Inbox" };
-        internal static String FolderInbox = "收件箱";
+        //internal const String FolderInbox = "INBOX"; //Coremail
+        internal const String FolderInbox = "INBOX"; //Aliyun
         internal static String[] FolderNameSents = { "已发送", "已发送邮件", "SENT", "Sent" };
-        internal static String FolderSent = "已发送";
+        //internal const String FolderSent = "Sent Items"; //Coremail
+        internal const String FolderSent = "已发送"; //Aliyun
         internal static String[] FolderNameDeletes = { "已删除", "已删除邮件", "DELETED", "Deleted" };
-        internal static String FolderDelete = "已删除";
+        //internal const String FolderDelete = "Trash"; //Coremail
+        internal const String FolderDelete = "已删除邮件"; //Aliyun
         internal static String[] FolderNameBuiltin = FolderNameInboxes.Concat(FolderNameSents).Concat(FolderNameDeletes).ToArray();
         internal static MailConversionOptions TransforOptionConvert = new MailConversionOptions()
         {
