@@ -87,7 +87,7 @@
             this.LabelFile.Padding = new System.Windows.Forms.Padding(4);
             this.LabelFile.Size = new System.Drawing.Size(187, 26);
             this.LabelFile.TabIndex = 3;
-            this.LabelFile.Text = "D:\\Projects\\ImportPST\\ImportPST.pst";
+            this.LabelFile.Text = "C:\\Users\\RenTY\\Repos\\godners\\ImportPST\\ImportPST.pst";
             this.LabelFile.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // TextBoxUsnm
@@ -97,7 +97,7 @@
             this.TextBoxUsnm.Name = "TextBoxUsnm";
             this.TextBoxUsnm.Size = new System.Drawing.Size(187, 26);
             this.TextBoxUsnm.TabIndex = 4;
-            this.TextBoxUsnm.Text = "pst01@tianyue.ren";
+            this.TextBoxUsnm.Text = "pst03@tianyue.ren";
             // 
             // TextBoxPswd
             // 

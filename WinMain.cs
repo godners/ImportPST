@@ -20,13 +20,11 @@ namespace ImportPST
         private PersonalStorage PSTFile;
         private String IMAPServer;
         private ImapClient IMAPWorker;
-        private Boolean PSTChecked;
-        private Int32 TotalMails, FinishMails;
+        private Int32 TotalMails, FinishMails, TotalFolders, FinishFolders;
 
 
         private void WinMain_Load(object sender, EventArgs e)
         {
-            PSTChecked = false;
         }
 
         private void ButtonFile_Click(object sender, EventArgs e)
@@ -39,74 +37,55 @@ namespace ImportPST
         }
         private void ButtonCheck_Click(object sender, EventArgs e)
         {
-            if (!PSTChecked)
-            {
-                // ↓↓↓PST文件不存在
-                if (!File.Exists(LabelFile.Text))
-                {
-                    MessageBox.Show($"{LabelFile.Text}\r\n文件不存在。", "错误",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error); return;
-                }
-                // ↓↓↓PST文件无法读取
-                try { PSTFile = PersonalStorage.FromFile(LabelFile.Text); }
-                catch
-                {
-                    MessageBox.Show($"{LabelFile.Text}\r\n无法读取。", "错误",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error); return;
-                }
-                // ↓↓↓PST文件格式错误
-                if (PSTFile.Format != FileFormat.Pst)
-                {
-                    MessageBox.Show($"{LabelFile.Text}\r\n格式错误。", "错误",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error); return;
-                }
-            }
-            // ↓↓↓提取总邮件数
-            TotalMails = 0;
-            LoadTotalMessage(PSTFile.RootFolder);
-            // ↓↓↓PST中无邮件
-            if (TotalMails == 0)
-            {
-                MessageBox.Show($"从{(new FileInfo(LabelFile.Text)).Name}中未找到邮件",
-                    "错误", MessageBoxButtons.OK, MessageBoxIcon.Error); return;
-            }
-            // ↓↓↓PST完成验证
-            LabelFile.Enabled = false;
-            PSTChecked = true;
-            ButtonFile.Enabled = false;
+            Boolean PSTChecked = CheckPSTFile(out String CheckMessage);
+            if (!PSTChecked) { MessageBox.Show(CheckMessage, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            PSTChecked = CheckIMAPServer(out CheckMessage);
+            if (!PSTChecked) { MessageBox.Show(CheckMessage, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            MessageBox.Show($"从{(new FileInfo(LabelFile.Text)).Name}中找到\r\n{TotalFolders} 个文件夹，" +
+                $"{TotalMails} 封邮件。\r\n按“开始进”行导入。", "确认成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            LabelFile.Enabled = false; ButtonFile.Enabled = false;
             TextBoxUsnm.Text = TextBoxUsnm.Text.Split('@')[0];
+            TextBoxUsnm.Enabled = false; TextBoxPswd.Enabled = false;
+            ButtonCheck.Enabled = false; ButtonStart.Enabled = true;
+        }
+        private Boolean CheckPSTFile(out String Message)
+        {
+            // ↓↓↓PST文件不存在
+            if (!File.Exists(LabelFile.Text))
+            { Message = $"{LabelFile.Text}\r\n文件不存在。"; return false; }
+            // ↓↓↓PST文件无法读取
+            try { PSTFile = PersonalStorage.FromFile(LabelFile.Text); }
+            catch { Message = $"{LabelFile.Text}\r\n无法读取。"; return false; }
+            // ↓↓↓PST文件格式错误
+            if (PSTFile.Format != FileFormat.Pst)
+            { Message = $"{LabelFile.Text}\r\n格式错误。"; return false; }
+            // ↓↓↓提取总邮件数
+            TotalMails = 0; TotalFolders = 0; LoadTotalItem(PSTFile.RootFolder);
+            if (TotalMails == 0)
+            { Message = $"从{(new FileInfo(LabelFile.Text)).Name}中未找到邮件"; return false; }
+            Message = String.Empty; return true;
+        }
+        private Boolean CheckIMAPServer(out String Message)
+        {
             // ↓↓↓无法获取IMAP服务器
-            try { /*GetIMAPServer();*/ IMAPServer = "imap.qiye.aliyun.com"; }
-            catch
-            {
-                MessageBox.Show($"用户名或密码不正确。", "错误",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error); return;
-            }
+            try { GetIMAPServer_Aliyun(); /*GetIMAPServer();*/ }
+            catch { Message = $"用户名或密码不正确。"; return false; }
             // ↓↓↓连接IMAP服务器
             IMAPWorker = new ImapClient()
             {
                 Host = IMAPServer,
-                Username = /*TextBoxUsnm.Text + "@cicc.com.cn"*/ "pst01@tianyue.ren",
+                Username = /*TextBoxUsnm.Text + "@cicc.com.cn"*/ "pst03@tianyue.ren",
                 Password = TextBoxPswd.Text,
                 SecurityOptions = SecurityOptions.Auto,
                 AutoCommit = true
             };
-            // ↓↓↓无法连接IMAP服务器
+            // ↓↓↓无法连接IMAP服务器            
             if (IMAPWorker.ConnectionState != ConnectionState.Open)
-            {
-                MessageBox.Show($"{IMAPServer}\r\n连接失败。", "错误",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error); return;                
-            }
-            // ↓↓↓服务器完成验证
-            TextBoxUsnm.Enabled = false;
-            TextBoxPswd.Enabled = false;
-            ButtonCheck.Enabled = false;
-            ButtonStart.Enabled = true;
-            MessageBox.Show($"从{(new FileInfo(LabelFile.Text)).Name}" +
-                $"中找到 {TotalMails} 封邮件，\r\n按“开始”进行导入",
-                "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            { Message = $"{IMAPServer}\r\n连接失败。"; return false; }
+            Message = String.Empty; return true;
+
         }
-        private void GetIMAPServer()
+        private void GetIMAPServer_CICC()
         {
             DirectoryEntry ADInstance = new DirectoryEntry($"LDAP://{DomainName}", TextBoxUsnm.Text, TextBoxPswd.Text);
             DirectorySearcher ADSearcher = new DirectorySearcher()
@@ -120,6 +99,7 @@ namespace ImportPST
             IMAPServerDomain(ADUser.Properties["extensionAttribute5"][0].ToString());
             ADUser.Close(); ADUser.Dispose(); ADSearcher.Dispose(); ADInstance.Close(); ADInstance.Dispose();
         }
+        private void GetIMAPServer_Aliyun() => IMAPServer = "imap.qiye.aliyun.com";
         private void IMAPServerDomain(String IMAPServerID)
         {
             switch (IMAPServerID)
@@ -130,77 +110,67 @@ namespace ImportPST
                 default: IMAPServer = "mailzb.cicc.group"; break;
             }
         }
-        private void LoadTotalMessage(FolderInfo FolderCount)
+        private void LoadTotalItem(FolderInfo FolderCount)
         {
-            TotalMails += FolderCount.EnumerateMessagesEntryId().Count();
-            foreach (FolderInfo FI in FolderCount.GetSubFolders(FolderKind.Normal)) LoadTotalMessage(FI);
+            TotalMails += FolderCount.EnumerateMessagesEntryId().Count(); TotalFolders += 1;
+            foreach (FolderInfo FI in FolderCount.GetSubFolders(FolderKind.Normal)) LoadTotalItem(FI);
         }
-
         private void ButtonStart_Click(object sender, EventArgs e)
         {
-            FinishMails = 0;
-            TransforMessage(PSTFile.RootFolder, PSTFile.RootFolder, "Root");
-            LabelSchedule.Text = TransforSchdule;
+            FinishMails = 0; FinishFolders = 0;
+
+            TransforRootMessage();
         }
 
-
-        private void TransforMessage(FolderInfo MessageFolder, FolderInfo ParentFolder, String FolderPath)
+        private void TransforRootMessage()
         {
-            ImapFolderInfo IMAPWorkFolder;
-            //List<MapiMessage> MessageSource = new List<MapiMessage>();
-            //List<MailMessage> MessageTarget = new List<MailMessage>();
-            if (FolderPath == "Root")
+            ImapFolderInfo IMAPWorkFolder; String RootFolderName = String.Empty;
+            List<FolderInfo> RootLavelFolders = PSTFile.RootFolder.GetSubFolders(FolderKind.Normal).ToList();
+            foreach (FolderInfo RootFolderInfo in RootLavelFolders)
             {
-                List<FolderInfo> NextLevelFolders = PSTFile.RootFolder.GetSubFolders(FolderKind.Normal).ToList();
-                foreach (FolderInfo PSTWorkFolder in NextLevelFolders)
-                {
-                    if (FolderNameInboxes.Contains(PSTWorkFolder.DisplayName))
-                    {
-                        if (!IMAPWorker.ExistFolder(FolderInbox)) IMAPWorker.CreateFolder(FolderInbox);
-                        IMAPWorker.ExistFolder(FolderInbox, out IMAPWorkFolder);
-                        IMAPWorker.CurrentFolder = IMAPWorkFolder;
-                    }
-                    if (FolderNameSents.Contains(PSTWorkFolder.DisplayName))
-                    {
-                        if (!IMAPWorker.ExistFolder(FolderSent)) IMAPWorker.CreateFolder(FolderSent);
-                        IMAPWorker.ExistFolder(FolderSent, out IMAPWorkFolder);
-                        IMAPWorker.CurrentFolder = IMAPWorkFolder;
-                    }
-                    if (FolderNameDeletes.Contains(PSTWorkFolder.DisplayName))
-                    {
-                        if (!IMAPWorker.ExistFolder(FolderDelete)) IMAPWorker.CreateFolder(FolderDelete);
-                        IMAPWorker.ExistFolder(FolderDelete, out IMAPWorkFolder);
-                        IMAPWorker.CurrentFolder = IMAPWorkFolder;
-                    }
-                    if (!FolderNameBuiltin.Contains(PSTWorkFolder.DisplayName))
-                    {
-                        if (!IMAPWorker.ExistFolder(PSTWorkFolder.DisplayName)) IMAPWorker.CreateFolder(PSTWorkFolder.DisplayName);
-                        IMAPWorker.ExistFolder(PSTWorkFolder.DisplayName, out IMAPWorkFolder);
-                        IMAPWorker.CurrentFolder = IMAPWorkFolder;
-                    }
-                    //MessageSource = PSTWorkFolder.EnumerateMapiMessages().ToList();
-                    //foreach (MapiMessage WorkMessage in MessageSource)
-                    //    MessageTarget.Add(WorkMessage.ToMailMessage(TransforOptionConvert));
-                    //IMAPWorker.AppendMessages(MessageTarget);
-                    MessageCloneToIMAP(PSTWorkFolder.EnumerateMapiMessages());
-                }
+                RootFolderName = BuiltinFolderName(RootFolderInfo);
+                if (!IMAPWorker.ExistFolder(RootFolderName)) { IMAPWorker.CreateFolder(RootFolderName); }
             }
-            else
+            foreach (FolderInfo RootFolderInfo in RootLavelFolders)
             {
-                //---------非父root文件夹
+                RootFolderName = BuiltinFolderName(RootFolderInfo);
+                IMAPWorker.ExistFolder(RootFolderName, out IMAPWorkFolder);
+                IMAPWorker.CurrentFolder = IMAPWorkFolder;
+                MessageCloneToIMAP(RootFolderInfo);
             }
-            //---------下探下级子文件夹
-
-
-
+            foreach (FolderInfo RootFolderInfo in RootLavelFolders)
+            {
+                RootFolderName = BuiltinFolderName(RootFolderInfo);
+                if (RootFolderInfo.HasSubFolders)
+                    foreach (FolderInfo SubFolderInfo in RootFolderInfo.GetSubFolders())
+                        TransforSubMessage(SubFolderInfo, RootFolderName);
+            }
         }
-        private void MessageCloneToIMAP(IEnumerable<MapiMessage> MessageSource)
+
+        private void TransforSubMessage(FolderInfo MessageFolder, String ParentFolder)
         {
+            ImapFolderInfo IMAPWorkFolder, IMAPParentFolder;
+            IMAPWorker.ExistFolder(ParentFolder, out IMAPParentFolder);
+            IMAPWorker.CurrentFolder = IMAPParentFolder;
+
+            if (!IMAPWorker.ExistFolder(MessageFolder.DisplayName))
+                IMAPWorker.CreateFolder(MessageFolder.DisplayName);
+
+            IMAPWorker.ExistFolder(MessageFolder.DisplayName, out IMAPWorkFolder);
+            IMAPWorker.CurrentFolder = IMAPWorkFolder;
+            MessageCloneToIMAP(MessageFolder);
+
+            foreach (FolderInfo SubFolderInfo in MessageFolder.GetSubFolders(FolderKind.Normal))
+                TransforSubMessage(SubFolderInfo, MessageFolder.DisplayName);
+        }
+        private void MessageCloneToIMAP(FolderInfo MessageFolder)
+        {
+            IEnumerable<MapiMessage> MessageSource = MessageFolder.EnumerateMapiMessages();
             List<MailMessage> MessageTarget = new List<MailMessage>();
             foreach (MapiMessage WorkMessage in MessageSource.ToList())
                 MessageTarget.Add(WorkMessage.ToMailMessage(TransforOptionConvert));
             IMAPWorker.AppendMessages(MessageTarget);
-            FinishMails += MessageSource.Count();
+            MessageTarget.Clear();
         }
 
 
