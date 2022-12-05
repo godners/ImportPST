@@ -68,7 +68,7 @@ namespace ImportPST
         private Boolean CheckIMAPServer(out String Message)
         {
             // ↓↓↓无法获取IMAP服务器
-            try { /*GetIMAPServer_Aliyun();*/ GetIMAPServer(); }
+            try { /*GetIMAPServer_Aliyun();*/ GetIMAPServer_CICC(); }
             catch { Message = $"用户名或密码不正确。"; return false; }
             // ↓↓↓连接IMAP服务器
             IMAPWorker = new ImapClient()
