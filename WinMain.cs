@@ -68,13 +68,13 @@ namespace ImportPST
         private Boolean CheckIMAPServer(out String Message)
         {
             // ↓↓↓无法获取IMAP服务器
-            try { GetIMAPServer_Aliyun(); /*GetIMAPServer();*/ }
+            try { /*GetIMAPServer_Aliyun();*/ GetIMAPServer(); }
             catch { Message = $"用户名或密码不正确。"; return false; }
             // ↓↓↓连接IMAP服务器
             IMAPWorker = new ImapClient()
             {
                 Host = IMAPServer,
-                Username = /*TextBoxUsnm.Text + "@cicc.com.cn"*/ "pst03@tianyue.ren",
+                Username = TextBoxUsnm.Text + "@cicc.com.cn",/* "pst03@tianyue.ren",*/
                 Password = TextBoxPswd.Text,
                 SecurityOptions = SecurityOptions.Auto,
                 AutoCommit = true

@@ -16,12 +16,12 @@ namespace ImportPST
     {
         internal const String DomainName = "cicc.group";
 
-        internal const String FolderInbox = "INBOX"; //Aliyun
-        internal const String FolderSent = "已发送"; //Aliyun
-        internal const String FolderDelete = "已删除邮件"; //Aliyun
-        //internal const String FolderInbox = "INBOX"; //Coremail
-        //internal const String FolderSent = "Sent Items"; //Coremail
-        //internal const String FolderDelete = "Trash"; //Coremail
+        //internal const String FolderInbox = "INBOX"; //Aliyun
+        //internal const String FolderSent = "已发送"; //Aliyun
+        //internal const String FolderDelete = "已删除邮件"; //Aliyun
+        internal const String FolderInbox = "INBOX"; //Coremail
+        internal const String FolderSent = "Sent Items"; //Coremail
+        internal const String FolderDelete = "Trash"; //Coremail
 
         internal static String[] FolderNameInboxes = { "收件箱", "INBOX", "Inbox" };
         internal static String[] FolderNameSents = { "已发送", "已发送邮件", "SENT", "Sent" };
